@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Restrictor de Servicio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&display=swap">
+<style>
+:root{--bg:#f6f3ec;--card:#fff;--ink:#17302c;--mute:#5d6f6a;--brand:#0f6b5c;--brand-ink:#fff;--accent:#d9622b;--line:#e1dccf;--soft:#e9f2ee;
+ --ok:#1b7f4b;--okbg:#dff3e6;--warn:#9a5b00;--warnbg:#fdeccb;--info:#1d5fa8;--infobg:#dbe9fa;
+ --serif:"Fraunces",Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0e1a18;--card:#162824;--ink:#eaf2ee;--mute:#9db3ac;--brand:#3cc4a6;--brand-ink:#06201a;--accent:#ff8a57;--line:#27413a;--soft:#1c3530;
+ --ok:#6fe0a1;--okbg:#17382a;--warn:#ffc864;--warnbg:#3a2d12;--info:#8cbcf5;--infobg:#17304d}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e1a18;--card:#162824;--ink:#eaf2ee;--mute:#9db3ac;--brand:#3cc4a6;--brand-ink:#06201a;--accent:#ff8a57;--line:#27413a;--soft:#1c3530;
+ --ok:#6fe0a1;--okbg:#17382a;--warn:#ffc864;--warnbg:#3a2d12;--info:#8cbcf5;--infobg:#17304d}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+.hero{background:radial-gradient(900px 400px at 85% -10%,color-mix(in srgb,var(--accent) 35%,transparent),transparent 60%),linear-gradient(160deg,#0b4f44,#12806d);color:#fff;padding:54px 0 64px;border-radius:0 0 32px 32px}
+.tag{display:inline-block;background:rgba(255,255,255,.16);padding:6px 14px;border-radius:99px;font-size:13px;letter-spacing:.04em}
+h1{font:800 clamp(34px,8vw,60px)/1.05 var(--serif);margin:16px 0 12px}
+.hero p{font-size:18px;max-width:560px;margin:0 0 24px;opacity:.93}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 22px;border-radius:12px;font-weight:600;text-decoration:none;background:#fff;color:#0b4f44}
+.btn.o{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:34px}
+.stat{background:rgba(255,255,255,.12);border-radius:14px;padding:12px 8px;text-align:center}
+.stat b{display:block;font:800 26px var(--serif)}.stat span{font-size:12px;opacity:.85}
+section{padding:46px 0 6px}
+h2{font:800 clamp(26px,5vw,36px)/1.15 var(--serif);margin:0 0 6px}
+.lead{color:var(--mute);margin:0 0 22px;max-width:620px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px}
+.card .ic{width:46px;height:46px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:24px;margin-bottom:10px}
+.card h3{margin:0 0 4px;font-size:17px}.card p{margin:0;color:var(--mute);font-size:14.5px}
+.card small{display:block;margin-top:10px;color:var(--brand);font-weight:600;font-size:12.5px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--card);border:1px solid var(--line);padding:8px 14px;border-radius:99px;font-size:14px}
+.chip.m{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);font-weight:600}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 18px;border-radius:99px;font:600 15px var(--sans);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:18px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14.5px}
+th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);padding:14px 16px;border-bottom:1px solid var(--line)}
+td{padding:14px 16px;border-bottom:1px solid var(--line)}tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600}
+.b{display:inline-block;padding:3px 11px;border-radius:99px;font-size:12.5px;font-weight:600}
+.b.ok{background:var(--okbg);color:var(--ok)}.b.warn{background:var(--warnbg);color:var(--warn)}.b.info{background:var(--infobg);color:var(--info)}
+.sum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.sum div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 16px}
+.sum b{display:block;font:800 22px var(--serif);color:var(--brand)}.sum span{font-size:12.5px;color:var(--mute)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--mute);margin:10px 2px 0}
+footer{margin-top:56px;padding:26px 0 34px;border-top:1px solid var(--line);color:var(--mute);font-size:14px;text-align:center}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}.hero{padding-top:40px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+ <span class="tag">🇵🇪 Hecho para hogares de todo el Perú</span>
+ <h1>Restrictor de Servicio</h1>
+ <p>Controla tu luz, agua, gas e internet desde una sola pantalla táctil. Si algo falla, el sistema corta el servicio antes de que sea tarde.</p>
+ <div class="btns"><a class="btn" href="#hardware">Ver el hardware</a><a class="btn o" href="#categorias">Ver categorías</a></div>
+ <div class="stats">
+  <div class="stat"><b>4</b><span>servicios en uno</span></div>
+  <div class="stat"><b>24/7</b><span>monitoreo</span></div>
+  <div class="stat"><b>5 s</b><span>entre lecturas</span></div>
+  <div class="stat"><b>100%</b><span>funciona sin internet</span></div>
+ </div>
+</div></header>
+
+<main class="wrap">
+<section id="hardware">
+ <h2>El hardware</h2>
+ <p class="lead">Un panel central y sensores certificados en cada servicio. Todo se conecta por Ethernet o WiFi.</p>
+ <div class="grid">
+  <div class="card"><div class="ic">🖥️</div><h3>Panel táctil</h3><p>Pantalla de 7” con interfaz grande, pensada para usarse con el dedo.</p><small>Raspberry Pi Touch Display 2</small></div>
+  <div class="card"><div class="ic">🧠</div><h3>Cerebro central</h3><p>Mini computador que corre el software y guarda tus límites, incluso sin internet.</p><small>Raspberry Pi o Home Assistant Green</small></div>
+  <div class="card"><div class="ic">⚡</div><h3>Medidor de luz</h3><p>Mide el consumo por fase en el tablero eléctrico, en tiempo real.</p><small>Shelly Pro 3EM</small></div>
+  <div class="card"><div class="ic">💧</div><h3>Válvula de agua</h3><p>Mide flujo y presión, y corta el suministro ante una fuga.</p><small>Shelly Neo Smart Water Valve</small></div>
+  <div class="card"><div class="ic">🔥</div><h3>Detector y corte de gas</h3><p>Detecta fugas de gas y cierra la válvula automáticamente.</p><small>Shelly Gas + Gas AddOn</small></div>
+  <div class="card"><div class="ic">📶</div><h3>Red y respaldo</h3><p>Router con Ethernet y UPS para que el sistema siga vivo en un apagón.</p><small>Router + switch + UPS</small></div>
+ </div>
+</section>
+
+<section id="beneficios">
+ <h2>Beneficios</h2>
+ <p class="lead">Menos sustos, menos gasto y toda tu casa a la vista.</p>
+ <div class="grid">
+  <div class="card"><div class="ic">🛡️</div><h3>Seguridad automática</h3><p>Cierra el gas ante una fuga y el agua si el flujo no se detiene.</p></div>
+  <div class="card"><div class="ic">💰</div><h3>Ahorro real</h3><p>Ves cuánto gastas hoy y recibes alertas por consumos fuera de lo normal.</p></div>
+  <div class="card"><div class="ic">🎚️</div><h3>Tú pones los límites</h3><p>Defines cuántos litros, vatios o ppm son aceptables para tu hogar.</p></div>
+  <div class="card"><div class="ic">📊</div><h3>Reporte claro</h3><p>Un resumen en palabras sencillas: cómo está tu luz, agua, gas e internet.</p></div>
+  <div class="card"><div class="ic">🏢</div><h3>Para condominios</h3><p>Una sola solución para casas, departamentos y edificios completos.</p></div>
+  <div class="card"><div class="ic">🔌</div><h3>Sigue sin internet</h3><p>Todo se procesa dentro de la casa, no depende de la nube.</p></div>
+ </div>
+</section>
+
+<section id="cobertura">
+ <h2>Dónde operamos</h2>
+ <p class="lead">Instalación y soporte en todo el Perú, de la costa a la selva.</p>
+ <div class="chips" id="lugares"></div>
+</section>
+
+<section id="categorias">
+ <h2>Categorías</h2>
+ <p class="lead">Elige un servicio para ver los productos disponibles.</p>
+ <div class="tabs" role="tablist" id="tabs"></div>
+ <div class="tw"><table><thead><tr><th>Producto</th><th>Qué hace</th><th>Modelo base</th><th>Disponibilidad</th></tr></thead><tbody id="cat"></tbody></table></div>
+ <p class="note">Disponibilidad de ejemplo; se actualiza según el inventario.</p>
+</section>
+
+<section id="transacciones">
+ <h2>Transacciones</h2>
+ <p class="lead">Ventas e instalaciones recientes. Filtra por estado.</p>
+ <div class="sum" id="sum"></div>
+ <div class="tabs" id="filtros"></div>
+ <div class="tw"><table><thead><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Servicio</th><th class="num">Monto</th><th>Estado</th></tr></thead><tbody id="tx"></tbody></table></div>
+ <p class="note">Datos de ejemplo para la demostración.</p>
+</section>
+</main>
+
+<footer><div class="wrap">Restrictor de Servicio · Luz, agua, gas e internet en una sola pantalla.<br>El cierre automático es una ayuda y no reemplaza equipos certificados ni una instalación hecha por un técnico.</div></footer>
+
+<script>
+const lugares=["Lima","Callao","Arequipa","Cusco","Trujillo","Piura","Chiclayo","Iquitos","Huancayo","Tacna","Cajamarca","Ica","Puno","Pucallpa","Ayacucho","Tarapoto","Tumbes","Huaraz"];
+document.getElementById("lugares").innerHTML=lugares.map((l,i)=>`<span class="chip${i<2?" m":""}">${l}</span>`).join("")+`<span class="chip">y todo el Perú</span>`;
+
+const D={"🔥 Gas":[["Detector de gas (GLP / GNV)","Alerta de fugas en la cocina","Shelly Gas","Disponible"],["Manipulador de válvula","Cierra el gas de forma automática","Shelly Gas AddOn","Disponible"],["Controlador de válvula","Se instala sobre válvulas que ya tienes","Aqara Valve Controller T1","Por pedido"],["Kit residencial de gas","Detector + manipulador + instalación","Combo","Disponible"]],
+"💧 Agua":[["Válvula inteligente DN25","Mide flujo, presión y temperatura","Shelly Neo Water Valve","Disponible"],["Válvula DN20 económica","Corte de agua desde el panel y el celular","FrankEver","Disponible"],["Sensor de inundación","Detecta fugas bajo lavaderos y tanques","Shelly Flood","Por pedido"],["Kit anti-fugas","Válvula + 2 sensores + instalación","Combo","Disponible"]],
+"⚡ Luz":[["Medidor de energía","Consumo por fase en tiempo real","Shelly Pro 3EM","Disponible"],["Kit de transformadores","Para tableros de mayor corriente","Shelly Pro 3EM 400 A","Por pedido"],["UPS de respaldo","Mantiene el sistema en un apagón","UPS 650 VA","Disponible"]],
+"📶 Internet":[["Router con Ethernet","Conecta sensores y panel","Según proveedor","Disponible"],["Switch de red","Más puertos para el tablero","Switch 5 puertos","Disponible"],["Monitoreo de conexión","Latencia y caídas en el reporte","Incluido en el software","Incluido"]]};
+const cls={"Disponible":"ok","Incluido":"info","Por pedido":"warn"};
+const tabs=document.getElementById("tabs"),cat=document.getElementById("cat");
+function showCat(k){[...tabs.children].forEach(b=>b.setAttribute("aria-selected",b.dataset.k===k));
+ cat.innerHTML=D[k].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td><span class="b ${cls[r[3]]}">${r[3]}</span></td></tr>`).join("")}
+Object.keys(D).forEach(k=>{const b=document.createElement("button");b.className="tab";b.textContent=k;b.dataset.k=k;b.setAttribute("role","tab");b.onclick=()=>showCat(k);tabs.appendChild(b)});
+showCat("🔥 Gas");
+
+const T=[["RS-1048","27 oct 2026","Condominio Los Jardines · Lima","Kit anti-fugas ×40",18400,"Pagado"],
+["RS-1047","26 oct 2026","Residencial Sol · Arequipa","Medidor de energía ×12",7200,"Instalado"],
+["RS-1046","25 oct 2026","Casa familiar · Cusco","Kit residencial de gas",980,"Pagado"],
+["RS-1045","24 oct 2026","Edificio Miraflores · Lima","Sistema completo ×28",33600,"Pendiente"],
+["RS-1044","22 oct 2026","Condominio Brisas · Trujillo","Válvula DN25 ×16",6400,"Instalado"],
+["RS-1043","21 oct 2026","Casa de playa · Piura","Sistema completo",1450,"Pagado"],
+["RS-1042","19 oct 2026","Residencial Amazonas · Iquitos","Detector de gas ×20",4200,"Pendiente"],
+["RS-1041","17 oct 2026","Condominio Andes · Huancayo","Kit anti-fugas ×12",5520,"Instalado"]];
+const tc={"Pagado":"ok","Instalado":"info","Pendiente":"warn"};
+const fl=document.getElementById("filtros"),tx=document.getElementById("tx");
+const money=n=>"S/ "+n.toLocaleString("es-PE");
+function showTx(f){[...fl.children].forEach(b=>b.setAttribute("aria-selected",b.dataset.f===f));
+ const rows=T.filter(r=>f==="Todas"||r[5]===f);
+ tx.innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td class="num">${money(r[4])}</td><td><span class="b ${tc[r[5]]}">${r[5]}</span></td></tr>`).join("");
+ const tot=rows.reduce((a,r)=>a+r[4],0);
+ document.getElementById("sum").innerHTML=`<div><b>${rows.length}</b><span>transacciones</span></div><div><b>${money(tot)}</b><span>monto total</span></div>`}
+["Todas","Pagado","Instalado","Pendiente"].forEach(f=>{const b=document.createElement("button");b.className="tab";b.textContent=f;b.dataset.f=f;b.onclick=()=>showTx(f);fl.appendChild(b)});
+showTx("Todas");
+</script>
+</body>
+</html>
