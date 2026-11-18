@@ -1,0 +1,90 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Gestor del hogar · Demo</title><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#10201f"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#10201f;--card:#182f2d;--ink:#eef4ef;--mute:#9db5ad;--bad:#ff6b5b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,sans-serif;padding:12px;user-select:none}
+h1{font-size:20px;margin:4px 4px 10px;display:flex;justify-content:space-between;font-weight:600}
+#banner{display:none;background:var(--bad);color:#190603;padding:12px;border-radius:12px;margin-bottom:10px;font-weight:600}
+.row{background:var(--card);border-left:8px solid var(--c);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.top{display:flex;justify-content:space-between;align-items:baseline}.name{font-size:18px;color:var(--c);font-weight:600}
+.big{font-size:44px;font-weight:700;line-height:1}.big small{font-size:18px;color:var(--mute);font-weight:400}
+.sub{color:var(--mute);margin:4px 0}svg{width:100%;height:36px;display:block;margin:6px 0}
+.ctl{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}.ctl span{color:var(--mute);flex:1;min-width:130px}
+button{min-width:52px;height:52px;border:0;border-radius:12px;background:#27443f;color:var(--ink);font-size:22px}
+button:active{background:var(--c)}button.v{font-size:16px;padding:0 16px}button.off{background:var(--bad);color:#190603;font-weight:700}
+.val{min-width:70px;text-align:center;font-size:20px}
+#rep{white-space:pre-line;line-height:1.5;background:var(--card);border-radius:14px;padding:14px}#rep.warn{outline:2px solid var(--bad)}
+.al{color:#ffc9c2;font-size:14px;margin-top:8px}
+#login{position:fixed;inset:0;background:var(--bg);display:none;place-items:center;z-index:9}#login.on{display:grid}
+#au{font-size:13px;line-height:1.5;margin-top:6px}
+</style></head><body>
+<h1><span>Gestor del hogar · Demo</span><span id="clock" style="color:var(--mute)"></span></h1>
+<div id="banner"></div><div class="row" style="--c:#c4a8ff"><div class="name">Modo demo · simula una falla</div><p class="sub">Datos simulados. Toca un botón y mira cómo reacciona el sistema.</p><div class="ctl"><button class="v" onclick="simu('leak')">Fuga de agua</button><button class="v" onclick="simu('gas')">Fuga de gas</button><button class="v" onclick="simu('net')">Sin internet</button><button class="v" onclick="simu('clear')">Normalizar</button><button class="v" id="ib" style="display:none" onclick="ip.prompt()">Instalar app</button></div><p class="sub" style="font-size:13px">iPhone: Compartir → Agregar a pantalla de inicio. Para volver a abrir el gas, primero toca Normalizar.</p></div><div id="rows"></div>
+<div id="rep">Cargando reporte...</div><div id="al" class="al"></div>
+<div class="row" style="--c:#9db5ad;margin-top:10px"><div class="top"><span class="name">Registro</span><button class="v" id="nb" onclick="notif()">Activar avisos</button></div><div id="au" class="sub"></div></div>
+<div id="login"><div class="row" style="--c:#6fd49a;width:min(92%,380px)"><div class="name">Acceso al gestor</div><p class="sub">Ingresa tu PIN para continuar.</p><input id="pin" type="password" inputmode="numeric" autocomplete="current-password" style="width:100%;height:52px;border-radius:12px;border:0;padding:0 14px;font-size:20px;margin:8px 0"><button class="v" style="width:100%" onclick="login()">Entrar</button><div id="le" class="al"></div></div></div>
+<script>(()=>{const L={power_w:5000,water_lpm:15,water_l_day:600,gas_ppm:300},SIM={leak:false,gas:false,net:true},V={water:true,gas:true},
+H={power:[],water:[],gas:[],net:[]},N={power:0,water:0,gas:0,net:null},T={kwh:0,water_l:0,gas_max:0,n:0,ok:0,lat:0},AL=[],AU=[],LA={};let run=0,fail=0,tk=0;
+const hm=()=>new Date().toLocaleTimeString('es',{hour12:false}),rnd=(a,b)=>a+Math.random()*(b-a);
+function audit(m){AU.unshift(new Date().toLocaleString('es',{hour12:false})+' '+m);AU.length=Math.min(AU.length,50)}
+function al(k,m,cd){cd=cd||300;if(Date.now()-(LA[k]||0)>cd*1000){LA[k]=Date.now();AL.unshift({t:hm(),msg:m});AL.length=Math.min(AL.length,30);audit('ALERTA: '+m)}}
+function step(){tk++;const p=450+250*Math.sin(tk/12)+rnd(0,80),w=!V.water?0:SIM.leak?2:[0,0,0,0,0,0,0,0,6,9,12][Math.floor(Math.random()*11)],g=rnd(3,15)+(SIM.gas?800:0),n=SIM.net?Math.round(rnd(18,60)):null;
+N.power=Math.round(p);N.water=Math.round(w*10)/10;N.gas=Math.round(g);N.net=n;for(const k in N){H[k].push(N[k]||0);if(H[k].length>60)H[k].shift()}
+T.kwh+=p*5/3.6e6;T.water_l+=w*5/60;T.gas_max=Math.max(T.gas_max,g);T.n++;T.ok+=n!==null;T.lat+=n||0;
+if(p>L.power_w)al('power','Consumo electrico alto: '+Math.round(p)+' W (limite '+L.power_w+' W)');
+if(w>L.water_lpm)al('flow','Flujo de agua alto: '+w.toFixed(1)+' L/min (limite '+L.water_lpm+')');
+if(T.water_l>L.water_l_day)al('wd','Limite diario de agua superado ('+L.water_l_day+' L)',3600);
+run=w>0?run+1:0;if(run>=8&&V.water){V.water=false;al('leak','Posible fuga: flujo continuo. Valvula de agua CERRADA',60)}
+if(g>L.gas_ppm&&V.gas){V.gas=false;al('gas','Gas detectado ('+Math.round(g)+' ppm). Valvula de gas CERRADA. Ventila y no uses fuego',60)}
+fail=n!==null?0:fail+1;if(fail===3)al('net','Sin conexion a internet',120)}
+const st=()=>({now:{...N},valves:{...V},limits:{...L},mode:'sim',sim:{...SIM},day:{kwh:+T.kwh.toFixed(3),water_l:Math.round(T.water_l)},hist:JSON.parse(JSON.stringify(H)),alerts:AL.slice(0,5),audit:AU.slice(0,6)});
+function rep(){const n=Math.max(T.n,1),up=100*T.ok/n,lat=T.lat/Math.max(T.ok,1),bad=!V.water||!V.gas||T.gas_max>L.gas_ppm||T.water_l>L.water_l_day||up<95||AL.length>0;
+return{status:bad?'warn':'ok',text:['Luz: '+T.kwh.toFixed(2)+' kWh hoy. Potencia actual '+N.power+' W (limite '+L.power_w+' W).','Agua: '+Math.round(T.water_l)+' L hoy de '+L.water_l_day+' L. Valvula '+(V.water?'abierta':'CERRADA')+'.','Gas: maximo hoy '+Math.round(T.gas_max)+' ppm (limite '+L.gas_ppm+'). Valvula '+(V.gas?'abierta':'CERRADA')+'.','Internet: '+Math.round(up)+'% de disponibilidad, latencia media '+Math.round(lat)+' ms.',bad?'Atencion: revisa las alertas.':'Todo en orden.'].join('\n')}}
+const rf=window.fetch.bind(window),R=(o,s)=>new Response(JSON.stringify(o),{status:s||200,headers:{'Content-Type':'application/json'}});
+window.fetch=async(u,o)=>{const p=String(u).split('?')[0];if(!p.startsWith('/api/'))return rf(u,o);let d={};try{d=JSON.parse((o&&o.body)||'{}')}catch(e){}
+if(p==='/api/state')return R(st());if(p==='/api/report')return R(rep());
+if(p==='/api/limits'){for(const k in L)if(k in d)L[k]=Math.max(0,+d[k]);return R({})}
+if(p==='/api/valve'&&d.name in V){if(d.name==='gas'&&d.open&&!d.confirm)return R({error:'confirmacion requerida'},400);V[d.name]=!!d.open;audit('Valvula de '+d.name+' '+(d.open?'ABIERTA':'CERRADA')+' desde la app');if(d.open&&d.name==='water')run=0;return R({})}
+if(p==='/api/sim'){for(const k in SIM)if(k in d)SIM[k]=!!d[k];return R({})}
+if(p==='/api/login')return R({});return R({},404)};
+setInterval(step,1000);for(let i=0;i<6;i++)step()})();</script>
+<script>
+const ROWS=[
+ {k:'power',n:'Luz',u:'W',c:'#f2b84b',lim:[['power_w','Limite de potencia',250,'W']]},
+ {k:'water',n:'Agua',u:'L/min',c:'#5bb5f2',valve:'water',lim:[['water_lpm','Limite de flujo',1,'L/min'],['water_l_day','Limite diario',50,'L']]},
+ {k:'gas',n:'Gas',u:'ppm',c:'#f28b4b',valve:'gas',lim:[['gas_ppm','Cierre automatico en',25,'ppm']]},
+ {k:'net',n:'Internet',u:'ms',c:'#6fd49a',lim:[]}];
+const $=id=>document.getElementById(id);
+const post=(p,b)=>fetch(p,{method:'POST',body:JSON.stringify(b)}).then(r=>r.json());
+function spark(v,c){const m=Math.max(...v,1),w=300,h=36;
+ const pts=v.map((y,i)=>(i*w/Math.max(v.length-1,1)).toFixed(1)+','+(h-2-y/m*(h-6)).toFixed(1)).join(' ');
+ return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2"/></svg>`}
+function bump(k,d){post('/api/limits',{[k]:Math.max(0,S.limits[k]+d)}).then(refresh)}
+function valve(n){const open=S.valves[n];
+ if(open&&!confirm('Cerrar la valvula de '+n+'?'))return;
+ if(!open&&n=='gas'&&!confirm('Abrir el gas? Confirma que no hay olor a gas.'))return;
+ post('/api/valve',{name:n,open:!open,confirm:true}).then(refresh)}
+let S;
+function draw(){
+ $('rows').innerHTML=ROWS.map(r=>{const v=S.now[r.k],d=S.hist[r.k];
+  const val=v===null?'<small>sin conexion</small>':v+' <small>'+r.u+'</small>';
+  const extra=r.k=='power'?S.day.kwh+' kWh hoy':r.k=='water'?S.day.water_l+' L hoy':'';
+  const lims=r.lim.map(([k,t,st,u])=>`<div class="ctl"><span>${t}</span><button onclick="bump('${k}',-${st})">-</button><div class="val">${S.limits[k]} ${u}</div><button onclick="bump('${k}',${st})">+</button></div>`).join('');
+  const vb=r.valve?`<div class="ctl"><span>Valvula: ${S.valves[r.valve]?'abierta':'CERRADA'}</span><button class="v ${S.valves[r.valve]?'':'off'}" onclick="valve('${r.valve}')">${S.valves[r.valve]?'Cerrar':'Abrir'}</button></div>`:'';
+  return `<div class="row" style="--c:${r.c}"><div class="top"><span class="name">${r.n}</span><span class="sub">${extra}</span></div><div class="big">${val}</div>${spark(d,r.c)}${lims}${vb}</div>`}).join('');
+ $('al').innerHTML=S.alerts.map(a=>a.t+' - '+a.msg).join('<br>');
+ $('au').textContent=(S.audit||[]).join('\n')||'Sin eventos';$('au').style.whiteSpace='pre-line';
+ const cut=Object.entries(S.valves).filter(([k,o])=>!o).map(([k])=>k);
+ $('banner').style.display=cut.length?'block':'none';$('banner').textContent='Valvula cerrada: '+cut.join(', ');
+ $('clock').textContent=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})+(S.mode=='sim'?' (demo)':'')}
+async function refresh(){const r=await fetch('/api/state');if(r.status==401){$('login').classList.add('on');return}$('login').classList.remove('on');S=await r.json();draw();check()}
+async function report(){const x=await fetch('/api/report');if(!x.ok)return;const r=await x.json();$('rep').textContent=r.text;$('rep').className=r.status}
+async function login(){const r=await fetch('/api/login',{method:'POST',body:JSON.stringify({pin:$('pin').value})});if(r.ok){$('pin').value='';$('le').textContent='';refresh();report()}else $('le').textContent=(await r.json()).error}
+let seen='';function check(){const a=S.alerts[0];if(!a)return;const k=a.t+a.msg;if(seen===''){seen=k;return}if(k!==seen){seen=k;if(window.Notification&&Notification.permission==='granted'){const o={body:a.msg,vibrate:[200,100,200]};navigator.serviceWorker?navigator.serviceWorker.ready.then(r=>r.showNotification('Gestor del hogar',o)).catch(()=>new Notification('Gestor del hogar',o)):new Notification('Gestor del hogar',o)}}}
+function notif(){if(!window.Notification)return alert('Este navegador no permite avisos.');Notification.requestPermission().then(p=>{$('nb').textContent=p==='granted'?'Avisos activados':'Avisos bloqueados'})}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+function simu(k){const s=k==='clear'?{leak:false,gas:false,net:true}:k==='net'?{net:false}:{[k]:true};post('/api/sim',s).then(refresh)}
+let ip;addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;$('ib').style.display='inline-block'});
+refresh();report();setInterval(refresh,1000);setInterval(report,3000);
+</script></body></html>
